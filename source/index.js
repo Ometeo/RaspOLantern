@@ -16,6 +16,7 @@
 
 var app = require('express')();
 var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 /**
  * function to get the main page of the application
@@ -23,6 +24,20 @@ var http = require('http').Server(app);
 app.get('/', function(req, res){
     console.log("Get main page - Start application");
    res.sendFile(__dirname + '/index.html'); 
+});
+
+/**
+ * Socket connection.
+ */
+io.on('connection', function(socket){
+    console.log("Socket connection.");
+
+    /**
+     * Activate command.
+     */
+    socket.on('activateCommand', function(){
+        console.log("Command executed.");
+    });
 });
 
 /**

@@ -4,6 +4,25 @@
     <title>Rasp O Lantern</title>
   </head>
   <body>
+    
+
     <h1>Rasp O Lantern</h1>
+
+    <form action="">
+      <button>Screamer</button>
+    </form>
+
+    <ul id="log"></ul>
+
+    <script src="socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('activateCommand');
+        return false;
+      });
+    </script>
+
   </body>
 </html>
