@@ -14,9 +14,35 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var app     = require('express')();
+var http    = require('http').Server(app);
+var io      = require('socket.io')(http);
+var Gpio    = require('pigpio').Gpio,
+    led18   = new Gpio(16, {mode: Gpio.OUTPUT}),
+    dutyCycle = 0;
+
+var Sound   = require('node-aplay');
+
+var increment = 5;
+
+var idleAnimation = function(){
+    dutyCycle = randomInt(0, 256);
+
+    led18.pwmWrite(dutyCycle);  
+};
+
+
+var on = true;
+var evilLaughAnimation = function(){
+    if(on){
+      console.log("on");
+      led18.pwmWrite(255);
+    } else {
+      console.log("off");
+      led18.pwmWrite(0);
+    }
+    on = !on;
+};
 
 /**
  * function to get the main page of the application
@@ -37,8 +63,18 @@ io.on('connection', function(socket){
      */
     socket.on('activateCommand', function(){
         console.log("Command executed.");
+        new Sound(__dirname +'/Evil_Laugh.wav').play();
+        clearInterval(idle);
+        laugh = setInterval(evilLaughAnimation, 200);
+        setTimeout(function(){
+            console.log("here");
+            clearInterval(laugh);
+            idle = setInterval(idleAnimation, 100);
+        }, 4000);
     });
 });
+
+var idle = setInterval(idleAnimation, 100);
 
 /**
  * Start the server
@@ -46,3 +82,7 @@ io.on('connection', function(socket){
 http.listen(8080, function(){
     console.log("Start Server...");
 })
+
+function randomInt(low, high) {
+    return Math.floor(Math.random() * (high - low) + low);
+}
